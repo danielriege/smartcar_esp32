@@ -64,6 +64,14 @@ menu "Tinycar Configuration"
         default 25
         help
         Max angle for the steering (in degrees).
+
+    config SERVO_TRIM
+        depends on SERVO_CONTROL
+        int "Servo Trim in hundred degrees"
+        range -500 500
+        default 0
+        help 
+        To Trim + 2 degrees, set to 200
     
     ###########################################################
     # LIGHT CONTROL

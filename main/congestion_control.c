@@ -3,7 +3,7 @@
 void update_congestion_control(congestion_control_t* congestion_control_parameters) {
     uint32_t interval_max_fps = 1000 / MAX_FPS;
 
-    congestion_control_parameters->tranmission_interval = 33;
+    congestion_control_parameters->tranmission_interval = 50;
 }
 
 congestion_control_t congestion_control_init() {

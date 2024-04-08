@@ -29,6 +29,7 @@ char *TAG = "main";
 static congestion_control_t congestion_control_params;
 uint8_t next_frame_start_rtt = 0;
 uint16_t camera_grab_latency = 0;
+uint16_t current_fps = 0;
 
 // event handler from UDP server
 void control_event_handler(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data) {
@@ -63,7 +64,6 @@ void control_event_handler(void* handler_arg, esp_event_base_t base, int32_t id,
 void send_telemetry_task(void *pvParameters) {
     while (1) {
         int battery_voltage = battery_status_read();
-        uint8_t current_fps = 1000 / congestion_control_params.tranmission_interval;
         uint16_t min_frame_latency = camera_grab_latency;
         int8_t wifi_rssi = wifi_read_rssi();
         send_telemetry(battery_voltage, current_fps, min_frame_latency, wifi_rssi);
@@ -78,10 +78,11 @@ void send_camera_frame_task(void *pvParameters) {
         uint32_t timestamp = esp_timer_get_time() / 1000;
         camera_fb_t* fb = camera_get_frame_buffer();
         camera_grab_latency = (esp_timer_get_time() / 1000) - timestamp;
+        current_fps = 1000 / (camera_grab_latency + 50);
         tcfp_send_frame(fb->buf, fb->len, fb->width, fb->height, next_frame_start_rtt);
         camera_return_frame_buffer(fb);
         next_frame_start_rtt = 0;
-        vTaskDelay(congestion_control_params.tranmission_interval / portTICK_PERIOD_MS);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
 }
 
